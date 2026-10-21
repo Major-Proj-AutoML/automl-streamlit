@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: MIT OR Apache-2.0
+# Copyright 2026 The VESIT AutoML Project contributors
+
 """Streamlit demo for the AutoML gateway.
 
 Upload CSV -> full-run workflow -> poll -> download script + model.
