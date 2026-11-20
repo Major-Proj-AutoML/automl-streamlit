@@ -274,8 +274,10 @@ def run_workflow() -> None:
         if run["success"]:
             hero = st.columns([1, 2])
             with hero[0]:
-                st.markdown(f'<div class="score-hero">{run["test_score"]:.4f}</div>', unsafe_allow_html=True)
-                _metric = "neg-RMSE" if dataset["task_type"] == "regression" else "balanced-accuracy"
+                is_regression = dataset["task_type"] == "regression"
+                displayed_score = -run["test_score"] if is_regression else run["test_score"]
+                st.markdown(f'<div class="score-hero">{displayed_score:.4f}</div>', unsafe_allow_html=True)
+                _metric = "RMSE (lower is better)" if is_regression else "balanced-accuracy"
                 st.caption(f"{_metric} · run #{run['id']} · {run['runtime_seconds']:.2f}s")
             with hero[1]:
                 st.metric("Iterations used", f"{run['iterations_used']}/{run['max_iterations']}")
