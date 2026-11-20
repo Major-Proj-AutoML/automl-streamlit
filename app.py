@@ -275,10 +275,22 @@ def run_workflow() -> None:
             hero = st.columns([1, 2])
             with hero[0]:
                 is_regression = dataset["task_type"] == "regression"
-                displayed_score = -run["test_score"] if is_regression else run["test_score"]
-                st.markdown(f'<div class="score-hero">{displayed_score:.4f}</div>', unsafe_allow_html=True)
-                _metric = "RMSE (lower is better)" if is_regression else "balanced-accuracy"
-                st.caption(f"{_metric} · run #{run['id']} · {run['runtime_seconds']:.2f}s")
+                score = run["test_score"]
+                if is_regression and score is not None:
+                    displayed_score = abs(score)
+                    metric_label = "RMSE (lower is better)"
+                elif is_regression:
+                    displayed_score = None
+                    st.error("This run did not return a valid RMSE.")
+                elif score is not None and 0 <= score <= 1:
+                    displayed_score = max(0.0, score)
+                    metric_label = "balanced-accuracy (higher is better)"
+                else:
+                    displayed_score = None
+                    st.error("This run returned an invalid balanced-accuracy score.")
+                if displayed_score is not None:
+                    st.markdown(f'<div class="score-hero">{displayed_score:.4f}</div>', unsafe_allow_html=True)
+                    st.caption(f"{metric_label} · run #{run['id']} · {run['runtime_seconds']:.2f}s")
             with hero[1]:
                 st.metric("Iterations used", f"{run['iterations_used']}/{run['max_iterations']}")
                 st.metric("Prompt tokens", run.get("prompt_tokens") or "—")
